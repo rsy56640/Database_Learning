@@ -1,11 +1,11 @@
-# [CMU 15-721 Advanced Database Systems (Spring 2019)](https://www.youtube.com/playlist?list=PLSE8ODhjZXja7K1hjZ01UTVDnGQdx5v5U)
+****# [CMU 15-721 Advanced Database Systems (Spring 2019)](https://www.youtube.com/playlist?list=PLSE8ODhjZXja7K1hjZ01UTVDnGQdx5v5U)
 
 课程配套的 notes 很全，配套论文阅读：[Schedule - CMU 15-721 Advanced Database Systems (Spring 2019)](https://15721.courses.cs.cmu.edu/spring2019/schedule.html)
 
 - [01 In-Memory Databases](#01)
 - [02 Transaction Models & In-Memory Concurrency Control](#02)
 - [03 Multi-Version Concurrency Control Design Decisions](#03)
-- []()
+- [04 Multi-Version Concurrency Control Protocols](#04)
 - []()
 
 
@@ -94,7 +94,44 @@ SI：read the ***consistent*** snapshot that has been commited before te txn sta
 
 &nbsp;   
 <a id="04"></a>
-##
+## 04 Multi-Version Concurrency Control Protocols
+
+<img src="./assets/04_hekaton_mvcc.png" width="500"/>
+
+- txn 有两个 ts：begin-ts 和 commit-ts
+- `txn@ts` 表示 txn 还未提交，但是 begin-ts 是 ts
+- 先写入新的 tuple (begin-ts, infinity)
+- 然后把上一个指针指向这个 tuple（CAS，这里失败说明 first-writer-wins）
+- ！！！这时候这个 tuple 还是不可见！！！
+- 将上一个 end-ts 写成 begin-ts
+- 获取 commit-ts
+- 更新上一个 end-ts 和这个 begin-ts
+
+<img src="./assets/04_txn_lifecycle.png" width="500"/>
+
+为了支持 repeatable read 甚至 serializability，维护一些 metadata：
+
+<img src="./assets/04_txn_metadata.png" width="400"/>
+
+### commit
+
+- Optimistic
+  - 检查 version read 仍然可见
+  - 检查所有 scan 是否有 phantom
+- Pessimistic
+  - 读写锁
+  - 不需要 validation
+  - detect deadlock
+
+
+有一个挺不错的优化（针对 delta storage）：Precision Locking
+
+- 检查 validation phase 的 read sets 是否 phantom，即对于那些在 start-ts 之后 commit 的 txn 的 write sets
+- 只保留 read predicate
+
+<img src="./assets/04_precision_lock.png" width="500"/>
+
+还有很多优化和 trade-off，太细了，不写了。
 
 
 &nbsp;   
