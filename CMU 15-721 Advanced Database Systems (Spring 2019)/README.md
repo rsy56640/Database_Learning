@@ -1,4 +1,4 @@
-****# [CMU 15-721 Advanced Database Systems (Spring 2019)](https://www.youtube.com/playlist?list=PLSE8ODhjZXja7K1hjZ01UTVDnGQdx5v5U)
+# [CMU 15-721 Advanced Database Systems (Spring 2019)](https://www.youtube.com/playlist?list=PLSE8ODhjZXja7K1hjZ01UTVDnGQdx5v5U)
 
 课程配套的 notes 很全，配套论文阅读：[Schedule - CMU 15-721 Advanced Database Systems (Spring 2019)](https://15721.courses.cs.cmu.edu/spring2019/schedule.html)
 
@@ -6,6 +6,9 @@
 - [02 Transaction Models & In-Memory Concurrency Control](#02)
 - [03 Multi-Version Concurrency Control Design Decisions](#03)
 - [04 Multi-Version Concurrency Control Protocols](#04)
+- [05 MVCC Garbage Collection](#05)
+- []()
+- []()
 - []()
 
 
@@ -136,7 +139,30 @@ SI：read the ***consistent*** snapshot that has been commited before te txn sta
 
 &nbsp;   
 <a id="05"></a>
-##
+## 05 MVCC Garbage Collection
+
+### Index
+
+维护 index 到 version table：**一个 pk 对多个 version**
+
+<img src="./assets/05_mvcc_dup_key_index.png" width="360"/>
+
+### Version tracking - Txn level
+
+对于一个 write txn，记录下被修改的 tuple 之前的 older version 指针，在成功 commit 后交给 background vacuum。（当然部分 older version 可能还在被 read）
+
+### Comparison
+
+简单的做法是回收比当前最小 txn-ts 还小的 version；更细致的方法是比较 version 的 interval 是否 visible
+
+<img src="./assets/05_gc_comparison.png" width="360"/>
+
+### Physical Memory Collection
+
+- 变长数据：reuse
+- 定长数据
+  - reuse：降低了 temporal locality，old 和 new 混在一起（对于 append storage 无所谓；delta storage 缓存不友好）
+  - no reuse：compaction
 
 
 &nbsp;   
