@@ -8,7 +8,7 @@
 - [04 Multi-Version Concurrency Control Protocols](#04)
 - [05 MVCC Garbage Collection](#05)
 - []()
-- []()
+- [09 Storage Models & Data Layout](#09)
 - []()
 
 
@@ -151,6 +151,8 @@ SI：read the ***consistent*** snapshot that has been commited before te txn sta
 
 对于一个 write txn，记录下被修改的 tuple 之前的 older version 指针，在成功 commit 后交给 background vacuum。（当然部分 older version 可能还在被 read）
 
+<img src="./assets/05_gc_version_tracking.png" width="360"/>
+
 ### Comparison
 
 简单的做法是回收比当前最小 txn-ts 还小的 version；更细致的方法是比较 version 的 interval 是否 visible
@@ -182,4 +184,61 @@ SI：read the ***consistent*** snapshot that has been commited before te txn sta
 
 &nbsp;   
 <a id="09"></a>
+##  09 Storage Models & Data Layout
+
+### Data Presentation
+
+- 每个 tuple 定长 block，变长数据用指针指向 variable length pool
+- 处理 `NULL`
+  - column bitmap（业界常用做法）
+  - 存在 tuple 中，每个 attribute 一个 NULL flag（我写xjbDB的时候是打算这样做的，问题：alignment）
+- attribute 分布
+  - padding
+  - reorder
+
+### Storage Model
+
+- N-ary Storage Model (NSM)
+- Decomposition Storage Model (DSM)
+- Hybrid Storage Model
+
+#### NSM
+
+- OLTP - insert/update/delete
+- 如果只需要一列，cache 不友好
+
+#### DSM
+
+- 固定 offset
+- compression
+
+#### Hybrid Storage Model
+
+- 新数据频繁 txn，使用 row-store
+- 旧数据基本只有 analytical query
+
+结合两种引擎
+
+- Fractured Mirror
+  - 内存中复制一个 DSM
+  - OLTP txn 由后台线程在 DSM 中执行
+  - OLAP 在 DSM 中执行
+  - 需要维护 synchronization
+- Delta Store
+  - 把旧数据移到 DSM，新数据在 NSM（类似 MVCC 的 delta version 中的 main table 和 delta table）
+  - （没搞懂这样怎么做 OLAP）
+
+
+&nbsp;   
+<a id=""></a>
+##
+
+
+&nbsp;   
+<a id=""></a>
+##
+
+
+&nbsp;   
+<a id=""></a>
 ##
