@@ -7,6 +7,7 @@
 - [03 Multi-Version Concurrency Control Design Decisions](#03)
 - [04 Multi-Version Concurrency Control Protocols](#04)
 - [05 MVCC Garbage Collection](#05)
+- [06 Index Locking & Latching](#06)
 - []()
 - [09 Storage Models & Data Layout](#09)
 - []()
@@ -169,7 +170,43 @@ SI：read the ***consistent*** snapshot that has been commited before te txn sta
 
 &nbsp;   
 <a id="06"></a>
-##
+## 06 Index Locking & Latching
+
+> 我写存储引擎之前应该来看这节课的。。。
+
+index：DB 维护的用于加速数据检索的数据结构。有 B树 和 hash 两种。通常使用 B树，为了 range query
+
+<img src="./assets/06_lock_latch.png" width="360"/>
+
+- lock：逻辑上的，txn duration
+- latch：底层细节，mutex
+
+<a></a>
+
+- `std::mutex`：不要用
+- `std::atomic<T>`：spinlock，最好避免空等或os把正在做事的线程调度了
+- `std::atomic<Latch*>`：原子链表
+- 读写锁，使用 spinlock 实现
+
+**B+树上的锁只是保证 physical data structure，需要逻辑上的 lock 来保证 txn isolation level**
+
+### Lock
+
+- 持有周期是 txn level
+- lock 并不在 node 上，而是单独的结构来管理
+
+#### Lock Schemas
+
+- Predicate Locks
+  - 逻辑上检测 query 是否 intersect
+  - 难以实现
+- Key-Value Locks
+  - 难以管理 key，并发请求的 notification 机制，key 的 gc
+- Gap Locks
+- Key-Range Locks
+- Hierarchical Locking
+
+<img src="./assets/06_hierarchical_lock.png" width="360"/>
 
 
 &nbsp;   
