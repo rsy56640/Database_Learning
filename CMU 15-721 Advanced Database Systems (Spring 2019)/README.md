@@ -8,6 +8,7 @@
 - [04 Multi-Version Concurrency Control Protocols](#04)
 - [05 MVCC Garbage Collection](#05)
 - [06 Index Locking & Latching](#06)
+- [07 OLTP Indexes: Latch-free Data Structures](#07)
 - []()
 - [09 Storage Models & Data Layout](#09)
 - []()
@@ -211,7 +212,20 @@ index：DB 维护的用于加速数据检索的数据结构。有 B树 和 hash 
 
 &nbsp;   
 <a id="07"></a>
-##
+## 07 OLTP Indexes: Latch-free Data Structures
+
+### Skip List
+
+<img src="./assets/07_skip_list.png" width="400"/>
+
+- 不能 reverse access
+- 不要用跳表！！
+
+### Bw-Tree
+
+有点像 B+-Tree 结合了 LSM-Tree，但细节是在太多了，爆炸。。。
+
+<img src="./assets/07_bw_tree.png" width="400"/>
 
 
 &nbsp;   
