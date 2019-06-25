@@ -9,7 +9,7 @@
 - [05 MVCC Garbage Collection](#05)
 - [06 Index Locking & Latching](#06)
 - [07 OLTP Indexes: Latch-free Data Structures](#07)
-- []()
+- [08 OLTP Indexes: Trie Data Structures](#08)
 - [09 Storage Models & Data Layout](#09)
 - []()
 
@@ -230,7 +230,56 @@ index：DB 维护的用于加速数据检索的数据结构。有 B树 和 hash 
 
 &nbsp;   
 <a id="08"></a>
-##
+## 08 OLTP Indexes: Trie Data Structures
+
+### Index GC
+
+使用 ref count，但是会 suffer cache coherence，我们只关心是否为0，而不是具体值。
+
+维护一个 epoch，标记一段时间，当一个 epoch 中的 thread 全部离开时，开始回收。
+
+### Non Unique Key
+
+由于 MVCC 不同 snapshot 的 version 不一样，一个 key 可能对应多个 version（*感觉实现起来有很多坑，暂时还没有想通*）
+
+### Variable Length Key
+
+做工程就要面对这些很多肮脏的细节，，爆炸。。
+
+key 存储 offset，content 从 page 最后依次放置。要考虑一些 overflow 引发的 indirect concatenate。还可以 compression。
+
+### Judy Array (Tire)
+
+由于 string 对于 + 是 associative，可以把 string 拆开
+
+处理 branch 过多的方法：
+
+- linear：只保留固定位置
+- bitmap：记录哪些地方有，把有的 branch 压缩在一起（没讲怎么处理 insert/delete）
+- 所有 branch 都留位置
+
+<img src="./assets/08_judy_array_bitmap.png" width="360"/>
+
+### ART (Adaptive Radix Tree)
+
+另一种 branch 压缩方法
+
+<img src="./assets/08_art_node48.png" width="240"/>
+
+处理 concurrenct access
+
+- Optimistic Lock Coupling
+  - writer 不会被 reader 阻塞（*有点诡异*）
+  - 在 node 上加标记，比如递增的 version nmber
+  - writer 每次拿锁，并且增加 version number
+  - reader 等锁，直接往下走，每次向上检查一个 node，version number 是否被修改过。如果被修改，那么重来
+  - Epoch GC
+- Read-Optimized Write Exclusion
+  - writer 保证 reader consistent
+
+### MASSTREE
+
+<img src="./assets/08_masstree.png" width="280"/>
 
 
 &nbsp;   
