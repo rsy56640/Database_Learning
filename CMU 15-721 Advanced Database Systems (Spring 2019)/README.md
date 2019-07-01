@@ -11,6 +11,9 @@
 - [07 OLTP Indexes: Latch-free Data Structures](#07)
 - [08 OLTP Indexes: Trie Data Structures](#08)
 - [09 Storage Models & Data Layout](#09)
+- [10 Database Compression](#10)
+- [11 Larger-than-Memory Databases](#11)
+- [12 Recovery Protocols](#12)
 - []()
 
 
@@ -330,14 +333,56 @@ key 存储 offset，content 从 page 最后依次放置。要考虑一些 overfl
 
 
 &nbsp;   
-<a id=""></a>
-##
+<a id="10"></a>
+## 10 Database Compression
+
+目的是 performance，最好可以在 encoded 情况下进行 OLAP
+
+### columnar compression
+
+trade-off，data pattern
+
+
+&nbsp;   
+<a id="11"></a>
+## 11 Larger-than-Memory Databases
+
+
+&nbsp;   
+<a id="12"></a>
+## 12 Recovery Protocols
+
+### Logging Scheme
+
+- physical：byte-level
+- logical：记录 txn 的逻辑动作（update, insert, delete）
+
+log record format：
+
+- txn id
+- 若干三元组
+  - table
+  - key
+  - value list
+      - attribute+value
+
+<img src="./assets/12_log_record_format.png" width="400"/>
+
+> 还是没太搞懂 concurrent txn 怎么 log
+
+### Recovery Protocol
+
+- load checkpoint，恢复 index
+- replay redo-log
+
+### Checkpoint
+
+> 感觉还是 mvcc 好
 
 
 &nbsp;   
 <a id=""></a>
 ##
-
 
 &nbsp;   
 <a id=""></a>
