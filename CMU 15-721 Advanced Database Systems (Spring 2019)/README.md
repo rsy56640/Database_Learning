@@ -14,7 +14,11 @@
 - [10 Database Compression](#10)
 - [11 Larger-than-Memory Databases](#11)
 - [12 Recovery Protocols](#12)
+- [13 Networking Protocols](#13)
+- [14 Scheduling](#14)
 - []()
+- [25 Self-Driving Databases](#25)
+- [26 Anil Goel (SAP HANA)](#26)
 
 
 &nbsp;   
@@ -381,9 +385,99 @@ log record format：
 
 
 &nbsp;   
-<a id=""></a>
-##
+<a id="13"></a>
+## 13 Networking Protocols
+
+### Bypass Kernel
+
+- Remote Direct Memory Access
+
+
+&nbsp;   
+<a id="14"></a>
+## 14 Scheduling
+
+### process model
+
+#### process per worker
+- OS 负责调度
+- IPC, shared memory for glocal data structure
+- 例如：IBM DB2, Postgres, Oracle
+- 原因是当时没有 POSIX Thread
+
+#### thread per worker
+
+- DBMS 负责调度
+- synchronization
+- 例如：IBM DB2, Mysql, Oracle
+
+给 worker 分配 task 时考虑 NUMA
+
+<img src="assets/14_numa.png" width="300"/>
+
+### data placement
+
+### scheduling
+
+#### Hyper 
+
+- morsel-based
+- numa-aware operator
+
+<img src="assets/14_hyper_query_exec.png" width="400"/>
+
+stealing work 一般针对 core 数量不多，否则性能下降，因为 interconnect。主要对于 cpu intensive workload 可以 steal
+
+#### HANA
+
+- soft work 可以被 steal，hard work 不行
+- 一些 working threading 轮询 soft queue 执行，hard queue 中的任务由 watch-dog 找对应的 core 来执行
+
+<img src="assets/14_hana_schedule.png" width="360"/>
+
 
 &nbsp;   
 <a id=""></a>
-##
+## 
+
+
+&nbsp;   
+<a id="25"></a>
+## 25 Self-Driving Databases
+
+<img src="assets/25_architecture.png" width="480"/>
+
+对于 replicated server，考虑转发读请求（影响对 index 的 evaluation），以及底层 hardware 不同
+
+<img src="assets/25_replicated_train.png" width="360"/>
+
+
+&nbsp;   
+<a id="26"></a>
+## 26 Anil Goel (SAP HANA)
+
+<img src="assets/26_sap_etl.png" width="360"/>
+
+问题：晚上迁移数据，OLTP引擎→OLAP引擎，不能及时做 analytical query；此外有额外的开销
+
+HANA：不错的 OLTP 引擎 + 及时的 OLAP 支持
+
+<img src="assets/26_sap_workload.png" width="600"/>
+
+- Row Store：小部分热数据（叫做 delta store）
+  - B+Tree 只用于这部分数据
+- Column Store：Read-Optimized, Immutable Data Store（叫做 main）
+  - 读操作同时访问 delta store 和 main，得到 multiversion。这里的 index 是 Hash
+  - dictionary compreesion
+      - 前缀压缩
+      - 字典映射值与数据顺序相同（因为 main 是不变的，否则需要不断 recode）
+  - 如果想对 column storage 做 OLTP txn（列粒度）
+      - 只允许做 delete，用 bitmap 标记
+      - 如果是 update，看作 delete，然后 insert 到 delta store
+  - delta store 隔一段时间要 merge 到 main store
+
+<img src="assets/26_sap_nsm_to_dsm.png" width="480"/>
+
+memory buffer 管理
+
+<img src="assets/26_sap_storage_virtualization.png" width="480"/>
