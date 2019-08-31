@@ -45,10 +45,22 @@ data model
 
 
 &nbsp;   
-## []()
+## [Chapter 5: Large-Scale Dataflow Engines](http://www.redbook.io/ch5-dataflow.html)
 
 
+可扩展的数据处理需求
 
+
+&nbsp;   
+## [Chapter 6: Weak Isolation and Distribution](http://www.redbook.io/ch6-isolation.html)
+
+弱并发控制下的性能提升，以及如何设计易于编程的语义模型
+
+
+&nbsp;   
+## [Chapter 7: Query Optimization](http://www.redbook.io/ch7-queryoptimization.html)
+
+Eddies：运行时动态改变 operator 之间的数据流
 
 
 &nbsp;   
