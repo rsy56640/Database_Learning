@@ -64,4 +64,29 @@ Eddies：运行时动态改变 operator 之间的数据流
 
 
 &nbsp;   
-## []()
+## [Chapter 8: Interactive Analytics](http://www.redbook.io/ch8-interactive.html)
+
+set-containment lattice
+
+加速执行query的方法：并不访问所有数据
+
+- precomputation
+- sampling
+
+tradeoff: accuracy <-> performance
+
+
+&nbsp;   
+## [Chapter 9: Languages](http://www.redbook.io/ch9-languages.html)
+
+
+&nbsp;   
+## [Chapter 10: Web Data](http://www.redbook.io/ch10-webdata.html)
+
+
+&nbsp;   
+## [Chapter 11: A Biased Take on a Moving Target: Complex Analytics](http://www.redbook.io/ch11-complexanalytics.html)
+
+
+&nbsp;   
+## [Chapter 12: A Biased Take on a Moving Target: Data Integration](http://www.redbook.io/ch12-dataintegration.html)
