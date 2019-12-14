@@ -16,7 +16,16 @@
 - [12 Recovery Protocols](#12)
 - [13 Networking Protocols](#13)
 - [14 Scheduling](#14)
-- []()
+- [15 Query Processing & Execution](#15)
+- [16 Server-side Logic Execution](#16)
+- [17 Parallel Hash Join Algorithms](#17)
+- [18 Parallel Sort-Merge Join Algorithms](#18)
+- [19 Query Compilation & Code Generation](#19)
+- [20 Vectorized Query Execution](#20)
+- [21 Vectorization vs. Compilation](#21)
+- [22 Query Optimizer Implementation (Part I)](#22)
+- [23 Query Optimizer Implementation (Part 2)](#23)
+- [24 Query Optimizer Cost Models](#24)
 - [25 Self-Driving Databases](#25)
 - [26 Anil Goel (SAP HANA)](#26)
 
@@ -413,7 +422,7 @@ log record format：
 
 给 worker 分配 task 时考虑 NUMA
 
-<img src="assets/14_numa.png" width="300"/>
+<img src="assets/14_numa.png" width="420"/>
 
 ### data placement
 
@@ -424,7 +433,7 @@ log record format：
 - morsel-based
 - numa-aware operator
 
-<img src="assets/14_hyper_query_exec.png" width="400"/>
+<img src="assets/14_hyper_query_exec.png" width="480"/>
 
 stealing work 一般针对 core 数量不多，否则性能下降，因为 interconnect。主要对于 cpu intensive workload 可以 steal
 
@@ -433,12 +442,110 @@ stealing work 一般针对 core 数量不多，否则性能下降，因为 inter
 - soft work 可以被 steal，hard work 不行
 - 一些 working threading 轮询 soft queue 执行，hard queue 中的任务由 watch-dog 找对应的 core 来执行
 
-<img src="assets/14_hana_schedule.png" width="360"/>
+<img src="assets/14_hana_schedule.png" width="480"/>
 
 
 &nbsp;   
-<a id=""></a>
-## 
+<a id="15"></a>
+## 15 Query Processing & Execution
+
+- parallelism
+  - intra-operator：分析 input/output overhead
+  - inter-operator (pipeline)
+- instruction
+  - fewer
+  - cache
+
+<img src="assets/15_iterator_model.png" width="480"/><p/>
+
+<img src="assets/15_materialization_model.png" width="480"/><p/>
+
+<img src="assets/15_vectorization_model.png" width="480"/><p/>
+
+
+&nbsp;   
+<a id="16"></a>
+## 16 Server-side Logic Execution
+
+
+&nbsp;   
+<a id="17"></a>
+## 17 Parallel Hash Join Algorithms
+
+<img src="assets/17_parallel_join_algorithm.png" width="800"/><p/>
+
+- overhead
+  - synchronization
+  - cache miss
+- join
+  - **partition**
+      - 先做一次 coarse-grained hash，目的是减少 build phase 的 cache miss
+          - 扫一遍：mapreduce
+          - 扫多遍：rank and permute（*没搞懂这个怎么就分成 chunk，fits into cache*）
+  - **build**
+      - chained
+      - linear probe
+      - robin hood
+      - cuckoo
+  - **probe**
+
+> 后半部分有一个 benchmark，回头补一下
+
+
+&nbsp;   
+<a id="18"></a>
+## 18 Parallel Sort-Merge Join Algorithms
+
+
+&nbsp;   
+<a id="19"></a>
+## 19 Query Compilation & Code Generation
+
+
+&nbsp;   
+<a id="20"></a>
+## 20 Vectorized Query Execution
+
+- codegen
+- vectorization
+- NUMA interconnection
+
+
+&nbsp;   
+<a id="21"></a>
+## 21 Vectorization vs. Compilation
+
+- instruction
+- cycle
+- memory stall
+- branch misprediction
+
+
+&nbsp;   
+<a id="22"></a>
+## 22 Query Optimizer Implementation (Part I)
+
+- build elision
+  - 观察到一个事实：“如果 build 方原来就有 attr 的 index，并且 probe 方数量非常少，那么 build hashtable 是划不来的”
+      - build 方的 attr 已经 build 过了，那么 for free
+      - build 方的 attr 有 index，那么估计 probe 方的大小，然后决定是否 build 还是用原来的 index
+      - build 方的 attr 没有 index，那之后的 probe 要 sequential scan
+  - 当然也有些问题：probe 方的数据要存起来，就不能 pipeline 了，除非提前知道 probe 方的 size
+
+> optimizer 没太研究过，回头补
+
+
+&nbsp;   
+<a id="23"></a>
+## 23 Query Optimizer Implementation (Part 2)
+
+- Cascades
+- Join Order：n 维立方体的偏序集
+
+
+&nbsp;   
+<a id="24"></a>
+## 24 Query Optimizer Cost Models
 
 
 &nbsp;   
