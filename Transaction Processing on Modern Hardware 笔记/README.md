@@ -1,4 +1,6 @@
-## Transaction Processing on Modern Hardware 读书笔记
+# Transaction Processing on Modern Hardware 读书笔记
+
+> 第一遍先粗看，之后需要详细过一遍，各种 reference 还有各种方案架构的讨论。 - 2020.06   
 
 - [1 Introduction](#1)
 - [2 Transaction Concepts](#2)
@@ -35,6 +37,37 @@
 &nbsp;   
 <a id="2"></a>
 ## 2 Transaction Concepts
+
+### ACID
+
+- atomicity
+- consistency
+- isolation
+  - dirty write
+  - dirty read
+  - non-repeatable read: write from read, anti-dependency
+  - phantom: update/delete on predicated range
+  - lost update
+  - read skew: observe partial writes
+  - write skew: implicit constraint
+- durability
+  - undo log: reverse aborted trxn
+  - redo log: reapply committed trxn
+
+### Overview Concurrency Control Protocol
+
+<p/><img src="assets/Fig2.1.png" width="480"/>
+
+<p/><img src="assets/Fig2.2.png" width="900"/>
+
+<p/><img src="assets/Fig2.3.png" width="720"/>
+
+- pessimistic: validate read before reading
+  - 2PL (fine-grained locking)
+  - Partition Locking (coarse-grained locking)
+- optimistic: validate read before committing
+  - write visibility
+  - maintain private work space, read sets, write sets
 
 
 &nbsp;   
