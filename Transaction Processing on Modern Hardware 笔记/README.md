@@ -87,7 +87,7 @@
 
 - Hekaton 中的潜在 [**bug**](https://github.com/rsy56640/paper-reading/tree/master/%E6%95%B0%E6%8D%AE%E5%BA%93/content/High-Performance%20Concurrency%20Control%20Mechanisms%20for%20Main-Memory%20Databases)：获取 commit-ts 和对外展示并非原子，解决方案：
   - 业务不感知 ts，并且操作只有 point kv
-  - 使用 **Hardware Trasactional Memory**
+  - 使用 **Hardware Transactional Memory**
   - 在每个 version chain 开头加入 commit-tag，将中心化的查找 txn state 的操作分散到数据上
 
 <p/><img src="assets/Fig3.3.png" width="720"/>
@@ -234,6 +234,53 @@
 &nbsp;   
 <a id="4"></a>
 ## 4 Coordination-Avoidance Concurrency
+
+转向 deterministic 若非 non-deterministic
+
+### 4.1 Restrictive Concurrency
+
+#### 4.1.1 H-Store
+
+> 几篇参考论文待看   
+
+- multi-partition transaction
+  - speculative execution
+  - lightweight locking
+
+#### 4.1.2 Calvin
+
+- sequencer 负责串行化 transaction
+- 提前确定 read/write sets
+- deterministic 2PL
+
+#### 4.1.3 LADS
+
+<p/><img src="assets/Fig4.1.png" width="780"/>
+
+- intra-graph dependency 怎么处理
+
+### 4.2 Deterministic Planning Optimization
+
+#### 4.2.1 Lazy Evaluation
+
+<p/><img src="assets/Fig4.2.png" width="720"/>
+
+<p/><img src="assets/Fig4.3.png" width="720"/>
+
+- now phase
+  - 写 log（逻辑？）
+  - 分析 dependency
+  - write stickification（其他 txn 怎么知道？）
+- later phase
+  - substantiation（是否需要 bypass 到其他 txn？）
+
+#### 4.2.2 Early Write Visibility
+
+<p/><img src="assets/Fig4.4.png" width="720"/>
+
+#### 4.2.3 BOHM
+
+- 有点像 ROB + OoOE
 
 
 &nbsp;   
