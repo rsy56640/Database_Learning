@@ -287,6 +287,97 @@
 <a id="5"></a>
 ## 5 Novel Transactional System Architectures
 
+### 5.1 Hardware-Aware Concurrency
+
+#### 5.1.1 DORA: Data-Oriented Architecture
+
+<p/><img src="assets/Fig5.1.png" width="720"/>
+
+- 线程专用化，TP stage 流水线化
+- 依赖分析
+
+#### 5.1.2 Silo
+
+<p/><img src="assets/Fig5.2.png" width="720"/>
+
+- epoch 批处理
+- 每个 epoch 保证 **total write order per record** 而不是 total order per txn
+
+<p/><img src="assets/Fig5.3.png" width="720"/>
+
+- concurrency protocol
+  - read phase
+  - validation phase
+      - 根据**预先决定好的顺序** lock write set（可能 abort？）
+      - 获取 global epoch counter
+      - 检查 read set（可能 abort？）
+  - write commit phase
+- **record-level redo logging**
+- rw-anti-dependency
+  - **partial epoch commit & recovery**（*有点意思*）
+
+#### 5.1.3 FOEDUS: Fast Optimistic Engine for Data Unification Services
+
+<p/><img src="assets/Fig5.4.png" width="720"/>
+
+- dual-page：DRAM 做 TP，NVRAM 存稳定 snapshot
+  - 周期性地 apply log 到 NVRAM
+  - 舍弃 DRAM page pointer，需要显式设立 txn barrier
+- stratified SI
+
+#### 5.1.4 MOCC: Mostly Optimistic Concurrency
+
+<p/><img src="assets/Fig5.5.png" width="720"/>
+
+这smjb。。。
+
+#### 5.1.5 ACC: Adaptive Concurrency Control
+
+<p/><img src="assets/Fig5.6.png" width="720"/>
+
+- cross-partition txn
+- 每个 partition 根据 workload 选择 concurrency protocol
+- 如何管理混合 concurrency protocol
+- 如何在保证 txn 语义的前提下进行 concurrency protocol 转变
+  - 2VCC
+
+#### 5.1.6 QueCC: Queue-Oriented, Control-Free Concurrency
+
+<p/><img src="assets/Fig5.7.png" width="720"/>
+
+- planning：将 batch txns 变为 serial order of read/write operations
+- execution：priority？
+
+### 5.2 HTAP: Hybrid Transactional and Analytical Processing
+
+- data representation
+  - row
+  - column
+  - hybrid
+- data copy
+  - single replica
+  - multiple replica
+
+#### 5.2.1 L-Store: Lineage-Based Data Store
+
+<p/><img src="assets/Fig5.8.png" width="720"/>
+
+<p/><img src="assets/Fig5.9.png" width="1080"/>
+
+#### 5.2.2 ExpoDB: Exploratory Data Platform
+
+<p/><img src="assets/Fig5.10.png" width="720"/>
+
+> 这些玩意为什么能拆开，搞成服务化的东西，什么鬼？
+
+#### 5.2.3 BatchDB
+
+<p/><img src="assets/Fig5.11.png" width="720"/>
+
+#### 5.2.4 Deuteronomy: Decomposed Transaction Model
+
+<p/><img src="assets/Fig5.12.png" width="720"/>
+
 
 &nbsp;   
 <a id="6"></a>
