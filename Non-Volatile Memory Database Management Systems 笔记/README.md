@@ -18,6 +18,14 @@
 <a id="1"></a>
 ## 1 Introduction
 
+<p/><img src="assets/Table1.1.png" width="660"/>
+
+- byte addressability
+- high write throughput
+- read-write asymmetry
+
+<p/><img src="assets/Table1.2.png" width="660"/>
+
 
 &nbsp;   
 <a id="2"></a>
