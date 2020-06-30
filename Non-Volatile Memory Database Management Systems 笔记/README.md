@@ -303,6 +303,136 @@ XCHG, or LOCK-prefixed instructions to ensure that previous stores are included 
 <a id="4"></a>
 ## 4 Logging and Recovery
 
+<p/><img src="assets/Table4.1.png" width="720"/>
+
+### 4.1 Recovery Principles
+
+- **steal**：允许 flush uncommitted txn 的 dirty page
+- **no-force**：commit 时不要求 flush dirty page
+- **WAL** + **checkpoint**
+- **recovery**：analysis, redo, undo
+
+### 4.2 Write-Ahead Logging
+
+<p/><img src="assets/Fig4.1.png" width="720"/>
+
+#### 4.2.1 Runtime Operation
+
+<p/><img src="assets/Fig4.2.png" width="720"/>
+
+- **DPT** (dirty page table, redo)：记录 dirty page + 最早修改的 LSN
+- **ATT** (active txn table, undo)：记录 active txn + 最后 LSN
+- fuzzy checkpoint
+  - CHECKPOINT-BEGIN
+  - CHECKPOINT-END：记录 DPT 和 ATT（checkpoint-begin 时的 image）
+- MVCC 是 consistent checkpoint：只记录 committed txn 的修改，不记录在 checkpoint 开始之后开始的 txn 修改
+
+#### 4.2.2 Commit Protocol
+
+<p/><img src="assets/Fig4.3.png" width="720"/>
+
+- ATT 中插入 txn，标记为 active
+- 所有修改生成 log entry，更新 txn LSN
+- sync batched log (group commit)
+
+#### 4.2.3 Recovery Protocol
+
+<p/><img src="assets/Fig4.4.png" width="720"/>
+
+<p/><img src="assets/Fig4.5.png" width="720"/>
+
+### 4.3 Write-Behind Logging (MVCC)
+
+<p/><img src="assets/peloton_logging_wbl.png" width="1080"/>
+
+<p/><img src="assets/peloton_logging_callmap.png" width="720"/>
+
+- [Write-Behind Logging 论文阅读笔记](https://github.com/rsy56640/paper-reading/tree/master/%E6%95%B0%E6%8D%AE%E5%BA%93/content/Write-Behind%20Logging)
+- NVM 写吞吐比传统设备高出若干数量级
+- NVM 随机写和顺序写的性能差距缩小
+- NVM 是 byte-addressable
+- CPU 不能防止数据从 cache 写到 NVM
+- 不记录 before-image：MVCC
+- 不记录 after-image：NVM
+
+#### 4.3.1 Runtime Operation
+
+- **DTT (dirty tuple table)：不写到 NVM，一直在 memory**
+- 写新版本数据
+- 记录 (txn-id, table, meta, data pointer) 到 DTT
+
+#### 4.3.2 Commit Protocol
+
+<p/><img src="assets/Fig4.6.png" width="720"/>
+
+<p/><img src="assets/Fig4.7.png" width="720"/>
+
+> 感觉书中描述有误。   
+
+- 开启一轮 group commit，计算 commit-ts 区间 [C_p, C_d)
+- 写 log `GROUP-BEGIN { { Cl }, [C_p, C_d) }` 到 NVM
+- 执行 TP，同时维护 DTT（为了执行 runtime undo）
+- 根据 DTT，sync dirty tuple 到 NVM
+- 写 log `GROUP-END { { Cl' }, [C_p, C_d) }` 到 NVM
+- 通知 commit
+
+可以理解为 `GROUP-BEGIN` 是这一轮开启时未提交的，`GROUP-END` 是这一轮结束时已经提交的。`GROUP-BEGIN` - `GROUP-END` 就是还未提交的。
+
+#### 4.3.3 Recovery Protocol
+
+<p/><img src="assets/Fig4.8.png" width="720"/>
+
+- failure 表示一个 group commit-ts gap 中的 txn abort，之后被 GC
+
+<p/><img src="assets/Fig4.9.png" width="720"/>
+
+- 找到最后一个 `GROUP-BEGIN`
+- 找到其对应的 `GROUP-END`，如果没有就默认为 NULL
+- `GROUP-BEGIN` - `GROUP-END` 就是 abort txn
+- 如何忽略这些 tuple
+  - MVCC，难道访问前还检查一下 commit-ts 是否有效？
+- background GC
+
+<p/><img src="assets/Fig4.10.png" width="720"/>
+
+### 4.4 Replication
+
+<p/><img src="assets/Fig4.11.png" width="720"/>
+
+- WAL record
+
+### 4.5 Experimental Evaluation
+
+<p/><img src="assets/Fig4.12.png" width="720"/>
+<p/><img src="assets/Fig4.13.png" width="720"/>
+<p/><img src="assets/Fig4.14.png" width="720"/>
+<p/><img src="assets/Fig4.15.png" width="720"/>
+
+- WBL 在 SSD/HDD 上表现不如 WAL，因为 random write
+
+<p/><img src="assets/Fig4.16.png" width="720"/>
+
+- WBL recovery time 和 txn 数量无关
+
+<p/><img src="assets/Fig4.17.png" width="720"/>
+<p/><img src="assets/Fig4.18.png" width="720"/>
+<p/><img src="assets/Fig4.19.png" width="720"/>
+
+- NVM latency 对写操作影响更明显，原因是 cacheline contention
+
+<p/><img src="assets/Fig4.20.png" width="720"/>
+
+- CLWB 有利于 WBL，原因是？？？
+
+<p/><img src="assets/Fig4.21.png" width="720"/>
+<p/><img src="assets/Fig4.22.png" width="720"/>
+
+- 不同的 group commit latency 倾向于不同的存储设备
+
+### 4.6 Summary
+
+- WBL, throughput, latency, availability, storage footprint
+
 
 &nbsp;   
 <a id="5"></a>
