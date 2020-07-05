@@ -438,6 +438,78 @@ XCHG, or LOCK-prefixed instructions to ensure that previous stores are included 
 <a id="5"></a>
 ## 5 Buffer Management
 
+### 5.2 NVM-Aware Buffer Management
+
+<p/><img src="assets/Fig5.1.png" width="720"/>
+
+#### 5.2.1 New Data Migration Paths
+
+<p/><img src="assets/Fig5.2.png" width="720"/>
+
+- 主要看 workload
+  - working set size
+  - access pattern
+  - frequency of NVM writes
+
+### 5.3 Adaptive Data Migration
+
+<p/><img src="assets/Algorithm5.1.png" width="720"/>
+
+- T: throughput
+- W: write to NVM
+- Cost Function: `Cost(T, W) = L1*T - L2*W`
+
+### 5.4 Storage Hierarchy Selection
+
+- 模型有点勉强
+
+### 5.6 Experimental Evaluation
+
+<p/><img src="assets/Table5.1.png" width="720"/>
+
+#### 5.6.2 Workload Skew Characterization
+
+<p/><img src="assets/Fig5.3.png" width="720"/>
+
+#### 5.6.3 Impact of NVM on Runtime Performance
+
+<p/><img src="assets/Fig5.4.png" width="720"/>
+
+- 大量小事务需要频繁写回
+- 如果 working set 不能 fit in DRAM，那么 NVM-SSD 性能好
+
+<p/><img src="assets/Fig5.5.png" width="720"/>
+
+- fit in NVM
+
+#### 5.6.4 Storage Hierarchy Recommendation
+
+<p/><img src="assets/Fig5.6.png" width="720"/>
+
+- working set size
+- frequency of NVM writes
+- system cost budget
+
+#### 5.6.5 Data Migration Policies
+
+<p/><img src="assets/Fig5.7.png" width="720"/>
+<p/><img src="assets/Fig5.8.png" width="720"/>
+<p/><img src="assets/Fig5.9.png" width="720"/>
+<p/><img src="assets/Fig5.10.png" width="720"/>
+
+#### 5.6.6 Buffer Management Policy Comparison
+
+<p/><img src="assets/Fig5.11.png" width="720"/>
+
+#### 5.6.7 Adaptive Data Migration
+
+<p/><img src="assets/Fig5.12.png" width="720"/>
+
+### 5.7 Summary
+
+- multi-tier storage hierarchy
+- data migration policy
+
 
 &nbsp;   
 <a id="6"></a>
