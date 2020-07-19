@@ -515,6 +515,108 @@ XCHG, or LOCK-prefixed instructions to ensure that previous stores are included 
 <a id="6"></a>
 ## 6 Indexing
 
+- 需要对多个内存位置做 atomic 操作
+  - 引入 indirection layer：BwTree
+  - PMwCAS：BzTree
+- persistence guarantee
+- simple recovery
+
+### 6.1 Persistent Multi-Word CAS
+
+<p/><img src="assets/Fig6.1.png" width="720"/>
+
+- [Easy Lock-Free Indexing in Non-Volatile Memory 论文阅读笔记](https://github.com/rsy56640/paper-reading/tree/master/%E6%95%B0%E6%8D%AE%E5%BA%93/content/Easy%20Lock-Free%20Indexing%20in%20Non-Volatile%20Memory)
+- [PIRL 2019: Experience on building a lock-free B+-tree in persistent memory - youtube](https://www.youtube.com/watch?v=nAfMtiUlOqI)
+
+### 6.2 BzTree Architecture and Design
+
+### 6.3 BzTree Nodes
+
+#### 6.3.1 Node Layout
+
+<p/><img src="assets/Fig6.2.png" width="720"/>
+
+- slotted-page layout
+  - fixed meta 从上到下
+  - variable data 从下到上
+- header
+- meta array
+
+#### 6.3.2 Leaf Node Operations
+
+<p/><img src="assets/Table6.1.png" width="720"/>
+
+- **insert**
+- **delete**
+- **update**
+- **upsert**
+- **read**
+- **range scan**
+
+### 6.4 Structure Modifications
+
+<p/><img src="assets/Fig6.3.png" width="720"/>
+
+- **split**
+- **merge**
+
+### 6.5 BzTree Durability and Recovery
+
+#### 6.5.1 Persistent Memory Allocator
+
+- allocate
+- activated
+- free
+
+#### 6.5.2 Durability
+
+- variable-length
+  - flush-before-visible protocol
+- word-length
+  - PMwCAS
+
+#### 6.5.3 Recovery
+
+- memory lifetime
+  - PMwCAS policy
+- PMwCAS recovery
+- index structure recovery
+  - index 自己检查：epoch
+  - 要考虑到 allocator 和 index 在 object ownership transfer 上的问题
+
+### 6.6 Experimental Evaluation
+
+<p/><img src="assets/Fig6.4.png" width="720"/>
+<p/><img src="assets/Fig6.5.png" width="720"/>
+
+- BzTree
+  - inter-link node
+  - in-place update
+- BwTree
+  - indirect table
+  - update by delta: pointer chasing
+
+<p/><img src="assets/Fig6.6.png" width="720"/>
+
+- durability: CLFLUSH (CLWB in future)
+
+<p/><img src="assets/Fig6.7.png" width="720"/>
+
+- Bwtree: pointer chasing, delta apply
+
+<p/><img src="assets/Fig6.8.png" width="720"/>
+
+- key 越大，split 次数越多，key comparison 开销越大
+- free space：（没看懂）越小 key comparison 开销越小，但是 split 开销越大
+
+<p/><img src="assets/Fig6.9.png" width="720"/>
+
+### 6.7 Summary
+
+- simplicity：PMwCAS 使得 BzTree 不那么复杂
+- flexibility：DRAM 和 NVM 均可，8% persistence 开销
+- recovery
+
 
 &nbsp;   
 <a id="7"></a>
