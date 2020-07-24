@@ -645,6 +645,20 @@ XCHG, or LOCK-prefixed instructions to ensure that previous stores are included 
 <a id="8"></a>
 ## 8 Future Work
 
+### 8.1 Query Optimization
+
+### 8.2 Query Processing Algorithms
+
+### 8.3 Access Methods
+
+### 8.4 Larger-than-Memory Databses
+
+### 8.5 SQL Extensions
+
+### 8.6 Testing
+
+### 8.7 High Availability
+
 
 &nbsp;   
 <a id="9"></a>
