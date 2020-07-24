@@ -622,6 +622,24 @@ XCHG, or LOCK-prefixed instructions to ensure that previous stores are included 
 <a id="7"></a>
 ## 7 Related Work
 
+### 7.1 Logging & Recovery
+
+### 7.2 File Systems
+
+### 7.3 Replication
+
+### 7.4 Memory Management
+
+### 7.5 Hardware Support
+
+### 7.6 Software Testing
+
+### 7.7 Latch-Free Indexes
+
+### 7.8 Multi-Word CAS
+
+### 7.9 Persistent Indexes
+
 
 &nbsp;   
 <a id="8"></a>
