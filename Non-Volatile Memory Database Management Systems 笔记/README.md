@@ -664,6 +664,10 @@ XCHG, or LOCK-prefixed instructions to ensure that previous stores are included 
 <a id="9"></a>
 ## 9 Conclusion
 
+- logging & recovery
+- storage management
+- indexing
+
 
 &nbsp;   
 <a id="10"></a>
