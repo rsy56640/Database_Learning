@@ -383,6 +383,51 @@
 <a id="6"></a>
 ## 6 Hardware-Assisted Transactional Utilities
 
+### 6.1 Database Partitioning
+
+#### 6.1.1 Schism
+
+<p/><img src="assets/Fig6.1.png" width="720"/>
+
+- offline partition: priori knowledge 固定访问模式
+- 最小割
+
+#### 6.1.2 Zephyr
+
+#### 6.1.3 Squall
+
+#### 6.1.4 E-Store
+
+#### 6.1.5 Clay
+
+### 6.2 Database Indexing
+
+#### 6.2.1 Hash Tables
+
+<p/><img src="assets/Fig6.2.png" width="720"/>
+
+- lock-free access
+- lock-free memory allocation
+- lock-free memory reclamation
+
+<p/><img src="assets/Fig6.3.png" width="720"/>
+
+#### 6.2.2 Bw-Tree
+
+<p/><img src="assets/Fig6.4.png" width="720"/>
+
+#### 6.2.3 MassTree
+
+<p/><img src="assets/Fig6.5.png" width="720"/>
+
+#### 6.2.4 ART: Adaptive Radix Tree
+
+<p/><img src="assets/Fig6.6.png" width="720"/>
+
+#### 6.2.5 BzTree
+
+<p/><img src="assets/Fig6.7.png" width="720"/>
+
 
 &nbsp;   
 <a id="7"></a>
