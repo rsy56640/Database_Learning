@@ -433,6 +433,48 @@
 <a id="7"></a>
 ## 7 Transactions on Heterogeneous Hardware
 
+### 7.1 Hardware Accelerators
+
+#### 7.1.1 FGPA Acceleration for Distributed Consensus
+
+<p/><img src="assets/Fig7.1.png" width="720"/>
+
+#### 7.1.2 FGPA Acceleration for Data Streaming
+
+#### 7.1.3 Q100, A Database Processing Unit
+
+#### 7.1.4 GPU Acceleration for Key-Value Stores
+
+<p/><img src="assets/Fig7.2.png" width="720"/>
+
+### 7.2 RDMA: Remote Direct Memory Access
+
+#### 7.2.1 RAMCloud
+
+- RDMA
+- lock-free
+
+#### 7.2.2 FaRM: Fast Remote Memory
+
+<p/><img src="assets/Fig7.3.png" width="720"/>
+
+- RDMA
+- Txn
+
+#### 7.2.3 MICA: Memory-Store with Intelligent Concurrent Access
+
+#### 7.2.4 Pilaf
+
+<p/><img src="assets/Table7.1.png" width="720"/>
+
+#### 7.2.5 Herd
+
+#### 7.2.6 HydraDB
+
+#### 7.2.7 Nessie
+
+<p/><img src="assets/Fig7.4.png" width="720"/>
+
 
 &nbsp;   
 <a id="8"></a>
