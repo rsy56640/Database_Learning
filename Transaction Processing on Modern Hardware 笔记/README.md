@@ -480,3 +480,29 @@
 <a id="8"></a>
 ## 8 Outlook: The Era of Hardware Specialization and Beyond
 
+计算下推到存储层，那怎么绕过对面的 CPU 和软件栈？
+
+### 8.1 Scaling the Network Wall for Distributed Transaction Processing
+
+#### 8.1.1 A New Abstraction: RDMO
+
+<p/><img src="assets/Fig8.1.png" width="720"/>
+
+#### 8.1.2 Five Databases RDMOs
+
+<p/><img src="assets/Table8.1.png" width="600"/>
+
+<p/><img src="assets/Fig8.2.png" width="720"/>
+
+### 8.2 Near-Data Transaction Processing
+
+#### 8.2.1 Why Datasets Will Never Fit in Memory: The "Five Minute Rule"
+
+#### 8.2.2 Data Management Over Unreliable Storage
+
+- 啥玩意，没看懂
+
+#### 8.2.3 Chanllenges and Opportunities for Error Correction
+
+### 8.3 Blockchain: Fault-Tolerant Distributed Transactions
+
