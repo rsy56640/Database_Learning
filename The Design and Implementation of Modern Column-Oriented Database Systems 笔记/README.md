@@ -13,11 +13,16 @@
 
 - [The design and implementation of modern column-oriented database systems - the morning paper](https://blog.acolyer.org/2018/09/26/the-design-and-implementation-of-modern-column-oriented-database-systems/)
 
-#### Data Layout and Access Pattern
-
 <p/><img src="assets/Fig1.1.png" width="600"/>
 
-
+- offset 寻址 record, fixed-width（考虑 compression）
+- block processing, cpu utilization
+- late materialization, memory bandwidth
+- compression
+- 直接在 compressed data 上做计算
+- join
+- sorted column
+- I/O pattern: write optimized memory buffer -> batched  flush compressed column
 
 <p/><img src="assets/Fig1.2.png" width="600"/>
 
