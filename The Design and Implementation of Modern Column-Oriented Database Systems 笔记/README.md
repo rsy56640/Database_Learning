@@ -31,19 +31,30 @@
 <a id="2"></a>
 ## 2 History, trends, and performance tradeoffs
 
-
 ### 2.1 History
-
-
-### 2.2 Technology and Application Trends
-
-
-### 2.3 Fundamental Performance Tradeo!s
 
 <p/><img src="assets/Fig2.1.png" width="600"/>
 
+### 2.2 Technology and Application Trends
+
+- disk 演进（capacity, transfer, seek time）导致 memory access pattern 变化
+- cpu frequency 快于 memory access
+- 实践
+  - MonetDB
+  - PAX: NSM page is organized as columns
+  - Fractured Mirrors: both NSM and DSM
+  - SybaseIQ
+  - C-Store / VectorWise
+
+### 2.3 Fundamental Performance Tradeo!s
+
 <p/><img src="assets/Fig2.2.png" width="600"/>
 
+DSM storage model against scan workload
+
+- projectivity
+- SSD：缓解 random read
+- low selectivity：reconstruct 少读了很多，NSM 还是要读每个 tuple
 
 
 &nbsp;   
