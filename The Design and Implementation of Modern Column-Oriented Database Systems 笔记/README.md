@@ -63,14 +63,54 @@ DSM storage model against scan workload
 
 ### 3.1 C-Store
 
+<p/><img src="assets/Fig3.1.png" width="600"/>
+
+- 以 column 为单位组织文件，compress，sort
+- ROS: read optimized store
+- WOS: write optimized store
+- **projection**：在某一组 column 上进行 sort 的一个 column group
+  - 意味着 column storage 会有冗余
+  - 按 column 一级一级 sort
+  - 不同形式的 projection 处理不同形式的 query
+- compression method
+  - sorted
+  - data type
+  - distinct value 的数量
+- sparse index
+  - 类似 btr，引入 internal node，加速二分
+  - 也可以对 tuple id 进行 sparse index，当 compressed 或 variable-size attr
+- update = delete mark + insert
+- late materialization
+- join
+- batch processing
+- MPP
+
 ### 3.2 MonetDB and VectorWise
+
+#### MonetDB
+
+<p/><img src="assets/Fig3.2.png" width="300"/>
+
+- 列存计算
+- 更加看重 cache miss，而不是 IO cost
+- index
+- optimization
+- 尝试消除 interpretation 开销
+
+#### VectorWise
+
+- vectorized execution
+- block of a column at a time
+- I/O
+- TP: Positial Delta Tree
+- compression
 
 ### 3.3 Other Implementations
 
-<p/><img src="assets/Fig3.1.png" width="600"/>
-
-<p/><img src="assets/Fig3.2.png" width="600"/>
-
+- Column Storage Only：仍使用 NSM execution engine，易于从原有架构演进
+- Native Column Store Design：将一套 column store engine 集成到原有架构
+- IBM BLU/BLINK
+- Microsoft SQL Servere Column Indexes
 
 
 &nbsp;   
