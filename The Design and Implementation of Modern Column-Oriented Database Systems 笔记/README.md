@@ -1,5 +1,7 @@
 # [The Design and Implementation of Modern Column-Oriented Database Systems](https://dl.acm.org/doi/10.5555/2602024) 笔记
 
+> 本书并不深，主要讨论 Design Space
+
 - [1 Introduction](#1)
 - [2 History, trends, and performance tradeoffs](#2)
 - [3 Column-store Architectures](#3)
@@ -119,41 +121,140 @@ DSM storage model against scan workload
 
 ### 4.1 Vectorized Processing
 
+- interpretation overhead
+- cache locality
+- compiler optimization
+- block algorithm
+- parallel memory access: hide latency
+- profiling: amortized overhead
+- adaptive execution: runtime statistics
+  - based on high/low selectivity
+  - different vectorized impl
+- query layout
+
 ### 4.2 Compression
 
+- column compression
+  - same pattern
+  - compact, simple impl
+  - sorted
+- cpu utilization
+  - reduce storage space
+  - cpu/memory bandwith is faster: perfer compressed data
+- fixed-width array & SIMD
+  - prefer light-weight compression schemes
+      - compress data into fixed-width dense array
+      - SIMD processing on compressed data
+- frequency partition：目标是提升 compression ratio
+  - frequent value 放到一个 page，对该 page 进行 dictionary compreesion
+- compression algorithm
+
+#### 4.2.1 Run-length Encoding
+
+- 对连续的相同数据编码
+- sorted consecutively
+- reasonable-sized run of the same value
+- 结果是 variable-length column，考虑 tuple reconstruction
+
+#### 4.2.2 Bit-Vector Encoding
+
+- 最好有限数据值
+- 为每一个 value 准备 bitmap
+- bitmap indices
+
+#### 4.2.3 Dictionary
+
+- 有限数据值
+- 将值序列映射为数字序列，数字序列还可以继续 compress
+- per block dictionary
+- 对 string 的计算转变成对 int 的计算
+
+#### 4.2.4 Frame Of Reference (FOR)
+
+- value locality，数据局部相关
+- 取一个公共部分，然后记录 delta
+  - 比如 leveldb 记录 key 的共享部分，然后分别记录 key 的非共享部分
+
+#### 4.2.5 The Patching Technique
+
+- 由于数据分布原因，只对最频繁的数据做 dictionary/FOR
+- 引入 exception value 来表示 no compression
 
 ### 4.3 Operating Directly on Compressed Data
 
+- 例如：RLE, SUM
+- dictionary compression 使用 order preserving encoding
+- query operator 需要感知 compressed data
+  - compression block 基础设施和一系列规范接口，针对不同 compression schemes
 
 ### 4.4 Late Materialization
 
-
-### 4.5 Joins
-
-
-### 4.6 Group-by, Aggregation and Arithmetic Operations
-
-
-### 4.7 Inserts/updates/deletes
-
-
-### 4.8 Indexing, Adaptive Indexing and Database Cracking
-
-
-### 4.9 Summary and Design Principles Taxonomy
-
 <p/><img src="assets/Fig4.1.png" width="600"/>
 
-<p/><img src="assets/Fig4.2.png" width="600"/>
+计算过程中使用 position list 表达 selectivity
+
+如果使用 projection，有 filter 命中了 leading sorted column，并且其他要访问的 column 也都包含在 projection 内，那么访问对 cache 友好。
+
+#### late materialization ([Materialization Strategies in a Column-Oriented DBMS](http://paperhub.s3.amazonaws.com/b96c89e3bc63ebb074728bb776b72e23.pdf))
+
+- filter & aggregation 非必要开销（具体指什么？？还得看上面论文）
+- 允许 process on compressed data
+- cache, memory bandwidth
+- vectorized execution
+- 有可能更慢：比如 filter 访问了大部分 column
+
+#### multi-column blocks
+
+<p/><img src="assets/Fig4.2.png" width="480"/>
+
+multi-column blocks：部分行，部分列
 
 <p/><img src="assets/Fig4.3.png" width="600"/>
 
-<p/><img src="assets/Fig4.4.png" width="600"/>
+### 4.5 Joins
 
-<p/><img src="assets/Fig4.5.png" width="600"/>
+- materialization strategy
+- sorted position list: access locality (block order)
 
-<p/><img src="assets/Fig4.6.png" width="600"/>
+### 4.6 Group-by, Aggregation and Arithmetic Operations
 
+- group by
+- aggregation
+  - tight for-loops
+  - memory bandwidth
+- arithmetic operation
+
+### 4.7 Inserts/updates/deletes
+
+- column store, projection, replica 导致 IO 次数放大
+- compression 无法增量 update
+
+方案：in-memory write store
+
+- column format
+- row format
+- Positional Delta Tree (VectorWise PDT)
+
+### 4.8 Indexing, Adaptive Indexing and Database Cracking
+
+- indexing
+  - projection
+  - zonemap：间隔的，轻量的 metadata
+- database cracking & adaptive indexing
+  - 逐渐分解成 pieces，逐步建立 index
+
+<p/><img src="assets/Fig4.4.png" width="480"/>
+
+根据 query 来 sort 部分，多次以后就建立起粗粒度的 sorted index
+
+<p/><img src="assets/Fig4.5.png" width="480"/>
+
+- presorted 需要提前长时间准备
+- cracking 可以动态快速达到较优的水平
+
+### 4.9 Summary and Design Principles Taxonomy
+
+<p/><img src="assets/Fig4.6.png" width="720"/>
 
 
 &nbsp;   
