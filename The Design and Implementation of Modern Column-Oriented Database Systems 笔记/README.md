@@ -261,12 +261,20 @@ multi-column blocks：部分行，部分列
 <a id="5"></a>
 ## 5 Discussion, Conclusions, and Future Directions
 
-
 ### 5.1 Comparing MonetDB/VectorWise/C-Store
 
+- block execution
+  - full materialization
+  - late materialization: compressed
+- load & update
+  - deletion bitmap + in-memory write store
+  - PDT
+- compression
+  - execution
+- index 
 
 ### 5.2 Simulating Column/Row Stores
 
-
 ### 5.3 Conclusions
 
+- adaptive storage layout
