@@ -476,6 +476,7 @@ XCHG, or LOCK-prefixed instructions to ensure that previous stores are included 
 <p/><img src="assets/Fig5.4.png" width="720"/>
 
 - 大量小事务需要频繁写回
+- NVM >> DRAM
 - 如果 working set 不能 fit in DRAM，那么 NVM-SSD 性能好
 
 <p/><img src="assets/Fig5.5.png" width="720"/>
@@ -488,27 +489,47 @@ XCHG, or LOCK-prefixed instructions to ensure that previous stores are included 
 
 - working set size
 - frequency of NVM writes
-- system cost budget
+- 基于 system cost budget & target workload，评估性价比最高的 multi-tier storage system
 
 #### 5.6.5 Data Migration Policies
 
 <p/><img src="assets/Fig5.7.png" width="720"/>
+
+- migration frequency 表示 migration 阈值，越低，越 eager
+- lazy migration on DRAM-NVM 对大多数 workload 都表现很好
+- write intensive 最好是 lazy，因为 NVM latency 和 DRAM 比较接近 (2x)，减少总 latency
+- (c) working set fits in DRAM
+
 <p/><img src="assets/Fig5.8.png" width="720"/>
+
+- NVM-SSD bypass 性能太差，最好总是 eager
+
 <p/><img src="assets/Fig5.9.png" width="720"/>
 <p/><img src="assets/Fig5.10.png" width="720"/>
+
+- DRAM 越小，lazy 对 DRAM 的利用率越高
 
 #### 5.6.6 Buffer Management Policy Comparison
 
 <p/><img src="assets/Fig5.11.png" width="720"/>
 
+- A: DRAM-NVM: lazy NVM-SSD: eager
+- B: DRAM-NVM: eager NVM-SSD: lazy
+
 #### 5.6.7 Adaptive Data Migration
 
 <p/><img src="assets/Fig5.12.png" width="720"/>
 
+- 从 eager eager 启动，自适应调整成 lazy eager
+
 ### 5.7 Summary
 
+NVM-SSD: eager
 - multi-tier storage hierarchy
+  - 数据集，数据倾斜，分层存储规格，性价比
 - data migration policy
+  - DRAM-NVM: lazy
+  - NVM-SSD: eager
 
 
 &nbsp;   
