@@ -8,14 +8,19 @@
     - Horizontal Parallelism
   - [3 Minimizing Memory Stalls](#3)
     - Workload Characterization for Typical Data Management Workloads
-    - Roadmap for this Chapter
     - Prefetching
     - Being Cache-conscious while Writing Software
     - Exploiting Common Instructions
-    - Conclusions
 - [PART II Explicit/Horizontal Scalability]
   - [4 Scaling-up OLTP](#4)
+    - Focus on Unscalable Components: Locking, Latching, Logging, Synchronization
+    - Non-uniform Communication
   - [5 Scaling-up OLAP Workloads](#5)
+    - Sharing Across Concurrent Queries: Reactive, Proactive
+    - NUMA-awareness
+      - Analytical Operators
+      - Task Scheduling
+      - Coordinated Data Placement and Task Scheduling
 - [PART III Conclusions]
   - [6 Outlook](#6)
   - [7 Summary](#7)
@@ -93,6 +98,10 @@
 - 使用 HT 的场合：
   - 软件本身可以做 HT-awared 的调度与计算
   - 更明确主动地去利用 cpu 计算资源
+- 从理论上来说，要注意 microarchitectural resources 的使用对于开启 hyperthreading 获得收益是否是有可能的
+  - issue queue/ROB 等资源分一半之后，能不能 hide latency
+  - port contention：比如有些 task 用 integer/FP 运算，另一些用访存 port
+  - cache/memory bandwidth：观察数据访问模式，比如扫描然后聚合计算，这种场景对 next line prefetcher 的使用，bandwidth 是什么程度
 
 <img src="assets/Fig2.11.png" width="540"/>
 
@@ -273,16 +282,80 @@ void shuffle+(v[0 : n]) {
 <a id="4"></a>
 ## 4 Scaling-up OLTP
 
+- scalability 受限于多核访问共享数据结构
+
 <img src="assets/Fig4.1.png" width="540"/>
+
+- 每个线程代表不同颜色，Fig4.1 表示线程访问 record 没有任何规律。因此需要临界区来同步（什么意思？图片的纵坐标是什么意思？）
+
 <img src="assets/Fig4.2.png" width="540"/>
+
+- 临界区数量对比，此外还要考察临界区长度
+
 <img src="assets/Fig4.3.png" width="540"/>
+
+临界区分类：
+
+- **Unbounded**：扩展性随着线程数增加而受限，即使很短的临界区也可能造成巨大瓶颈
+  - 比如：秒杀列更新导致 record locking；事务 begin 获取 id/readview
+- **Fixed**：
+- **Cooperative**：临界区可以处理其他线程的请求
+  - 比如 rocksdb JoinBatchGroup leader 负责写 wal，然后唤醒其他线程
+- 为了增加可扩展性，应该将 Unbounded 改成 Fixed/Cooperative
+
+### 4.1 Focus on Unscalable Components
+
+#### 4.1.1 Locking
+
 <img src="assets/Fig4.4.png" width="540"/>
 <img src="assets/Fig4.5.png" width="540"/>
+
+- lock inheritance：hot lock 可以减少竞争
+- 非常 hot lock 替换成 atomic 放到数据中
+
 <img src="assets/Fig4.6.png" width="540"/>
+
+- 按照数据 partition 给多个线程
+
+其他
+
+- hyper: partition
+- calvin: partition + 确定性并发控制
+- hekaton：lock free + OCC
+- silo: 偏序时间戳
+
+#### 4.1.2 Latching
+
+- index 从 root 开始 partition
+- PALM
+- Bw-tree
+
+#### 4.1.3 Logging
+
 <img src="assets/Fig4.7.png" width="540"/>
+
+- 串行化提交
+
 <img src="assets/Fig4.8.png" width="540"/>
+
+- aio + batch
+
+#### 4.1.4 Synchronization
+
+- 参考 [谈谈并发](https://github.com/rsy56640/triviality/tree/master/content/%E8%B0%88%E8%B0%88%E5%B9%B6%E5%8F%91)
+
+### 4.2 Non-uniform Communication
+
 <img src="assets/Fig4.9.png" width="540"/>
 
+- 分布式 data partition: data dependency, workload, hardware topology
+- 基于 rdma 考虑 rack-level scale out
+
+### 4.3 Conclusions
+
+- multicores & non-uniformity of access
+- 基于现有系统，如何消除瓶颈，提高扩展性
+- 开发新系统，设计上可扩展
 
 
 &nbsp;   
