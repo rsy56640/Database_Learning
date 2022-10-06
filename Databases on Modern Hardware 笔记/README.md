@@ -362,23 +362,113 @@ void shuffle+(v[0 : n]) {
 <a id="5"></a>
 ## 5 Scaling-up OLAP Workloads
 
+- hardware resources
+- memory bandwidth
 
 <img src="assets/Fig5.1.png" width="540"/>
+
+- Fig5.1a 表明 redundant computation 可以通过 sharing 消除
+- Fig5.1b 表明 bandwidth 是受限的，尤其在 NUMA 场景下，data placement & task scheduling 应该精心配置
+
+### 5.1 Sharing Across Concurrent Queries
+
+- 共享数据：协调 IO，避免不必要的访问
+- 共享计算：避免不必要的计算
+- 即使在分别执行的模式下，可共享：cache, materialized view, optimizer, buffer pool
+- reactive：共享相同子查询的中间结果
+- proactive：共享算子
+
+#### 5.1.1 Reactive Sharing
+
 <img src="assets/Fig5.2.png" width="540"/>
+
+- 完全相同的子查询
+- push/pull
+
+#### 5.1.2 Proactive Sharing
+
 <img src="assets/Fig5.3.png" width="540"/>
-<img src="assets/Fig5.4.png" width="540"/>
-<img src="assets/Fig5.5.png" width="540"/>
-<img src="assets/Fig5.6.png" width="540"/>
-<img src="assets/Fig5.7.png" width="540"/>
-<img src="assets/Fig5.8.png" width="540"/>
-<img src="assets/Fig5.9.png" width="540"/>
-<img src="assets/Fig5.10.png" width="540"/>
-<img src="assets/Fig5.11.png" width="540"/>
-<img src="assets/Fig5.12.png" width="540"/>
-<img src="assets/Fig5.13.png" width="540"/>
-<img src="assets/Fig5.14.png" width="540"/>
+
+- 额外记录 bitmap 关联到 tuple 表示被哪个 query 命中
+- 只要 bitmap 不为空，就可以继续走
+
+#### 5.1.3 Systems with Sharing Techniques
+
 <img src="assets/Table5.1.png" width="540"/>
 
+- AP 系统应尽可能共享 data 和 computation
+
+### 5.2 NUMA-awareness
+
+<img src="assets/Fig5.4.png" width="540"/>
+
+- socket interconnect 带宽：QPI 16GB/s bandwidth
+
+<img src="assets/Fig5.5.png" width="540"/>
+
+#### 5.2.1 Analytical Operators
+
+<img src="assets/Fig5.6.png" width="540"/>
+
+- data shuffle
+  - Fig5.6a: 普通 MR，bandwidth 不友好
+  - Fig5.6b: 轮流错位传输，平衡 interconnect traffic
+
+<img src="assets/Fig5.7.png" width="540"/>
+
+- 按照 radix shuffle，但是并不 NUMA-aware
+
+<img src="assets/Fig5.8.png" width="540"/>
+
+- 对于 NUMA 的访问模式
+  - **绝不 random write remote**
+  - **可以 sequentially read remote**
+- Fig5.8：局部排序，全局 N*N 轮 merge join
+  - local 随机写，remote 顺序读
+  - 读可能打满 interconnect bandwidth
+- 参考 [Massively Parallel Sort-Merge Joins in Main Memory Multi-Core Database Systems 论文阅读笔记](https://github.com/rsy56640/paper-reading/tree/master/%E6%95%B0%E6%8D%AE%E5%BA%93/content/Massively%20Parallel%20Sort-Merge%20Joins%20in%20Main%20Memory%20Multi-Core%20Database%20Systems)
+  - 先做 histogram 确定位置，remote 顺序写
+  - 动态确定 radix partition pivot
+
+<img src="assets/Fig5.9.png" width="540"/>
+
+- 还要考虑 data size, parallelism, SIMD
+
+#### 5.2.2 Task Scheduling
+
+<img src="assets/Fig5.10.png" width="540"/>
+<img src="assets/Fig5.11.png" width="540"/>
+
+- 切分 task，socket 级别调度
+  - 更好做 QoS
+- 笔者注：将 query plan 按照**计算**切分成 pipeline，再按照**数据**切分成 task
+
+#### 5.2.3 Coordinated Data Placement and Task Scheduling
+
+- task scheduling
+  - socket affinity, work stealing
+- data placement
+  - static
+  - adaptive
+
+<img src="assets/Fig5.12.png" width="540"/>
+
+- (static) first touch policy：数据放在执行 task 的 socket
+
+<img src="assets/Fig5.13.png" width="540"/>
+
+- (adaptive) dynamic load balance：数据分区迁移
+
+<img src="assets/Fig5.14.png" width="540"/>
+
+- SAP HANA：先迁移数据，允许跨核访问，视 local/across-socket access 情况进行 partition
+
+### 5.3 Conclusions
+
+- reactive/proactive share for concurrent query
+  - 避免重复计算，减少资源争用
+- NUMA-aware: data placement + task scheduling
+  - remote->local access，减少不必要的 across-socket bandwidth
 
 
 &nbsp;   
