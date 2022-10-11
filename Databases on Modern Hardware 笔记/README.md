@@ -475,16 +475,47 @@ void shuffle+(v[0 : n]) {
 <a id="6"></a>
 ## 6 Outlook
 
+### 6.1 Dark Silicon and Hardware Specialization
 
 <img src="assets/Fig6.1.png" width="540"/>
 
+- dark silicon：由于功耗限制，多核处理器同一时刻只能有一部分门电路能够工作，其余不工作的叫做暗硅
+- Fig6.1 右：设计不同规格的 specialized cores，动态使用
+- 特化硬件 + 软硬件结合
+
+### 6.2 Non-volatile RAM and Durability
+
+- 加速 WAL
+- 弃用 WAL，设计持久化结构
+
+<img src="assets/NVM-storage.png" width="600"/>
+
+### 6.3 Hardware Transactional Memory
+
+- 读写内存并计算的一串指令作为一个事务
+- 高效操作某些核心数据结构，设计上很友好，但扩展性不是非常好
+  - 事务状态表，事务预测提交
+  - index
+  - 指令不能太多，也有可能降低性能
+
+### 6.4 Task Scheduling for Mixed Workloads and Energy Efficiency
+
+- 数据新鲜度
+- TP/AP 混合 workload 调度
+- 混部，资源隔离，优先级，功耗，CPU，内存带宽
 
 
 &nbsp;   
 <a id="7"></a>
 ## 7 Summary
 
+- 垂直角度：单核特性，cache hierarchy
+- 水平角度：多核并行，memory bandwidth
 
-<img src="assets/Fig7.1.png" width="540"/>
+<img src="assets/Fig7.1.png" width="720"/>
 
-
+- 充分利用硬件
+  - 理解 microarchitecture，提高指令效率，减少内存暂停
+- 任务调度
+  - 混部，资源利用率，跨核带宽
+- 可扩展性
