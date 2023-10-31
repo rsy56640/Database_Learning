@@ -109,7 +109,7 @@
 - master 通过 work-ahead-set 来通知 helper 接下来需要哪些数据
 - 与单纯 prefetching 的区别？
   - 论文中说明：TLB miss 会导致 prefetch 被舍弃，而 helper 是显式触发 load；并不试图降低 total cache miss，而是试图将 cache miss 移出计算线程。
-  - 实际上 ia32 optimization 上面说是 page fault
+  - ia32 optimization Ch3.7.1 上面说是如果会引发 page fault，就直接 retire，啥也不干
 
 ### 2.3 Horizontal Parallelism
 
